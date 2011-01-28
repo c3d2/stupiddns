@@ -15,7 +15,7 @@
  *
  * ============================================================================
  */
-
+#include "config.h"
 #include <event2/dns.h>
 #include <event2/dns_struct.h>
 #include <event2/util.h>
@@ -27,25 +27,10 @@
 #include <string.h>
 //#include <assert.h>
 
-/* 
- *Listening Port may be given in compilation.
- * If not use this one, since 53 requires root priv
- */
-#ifndef LISTEN_PORT
-#define LISTEN_PORT 5359
-#endif
+const ev_uint8_t SIC_IPV4[] = STUPID_IP4 ;
+const ev_uint8_t SIC_IPV6[] = STUPID_IP6 ;
 
-#define SIC_IPV4_ARPA "1.0.0.10.in-addr.arpa"
-#define SIC_IPV6_ARPA ("1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0."         \
-                             "0.0.0.0.0.0.0.0.0.0.0.0.0.c.e.f.ip6.arpa")
-
-const ev_uint8_t SIC_IPV4[] = { 10, 0, 0, 1 };
-const ev_uint8_t SIC_IPV6[] = { 0xfe,0xc0,
-				0,0,0,0,
-				0,0,0,0,
-				0,0,0,1 };
-
-#define TTL 4242
+#define TTL STUPID_TTL
 
 /* This toy DNS server callback answers requests for stuff
  * pointin to the sic site
@@ -63,11 +48,11 @@ void server_callback(struct evdns_server_request *request, void *data)
         int ok=-1;
         /* We don't use regular strcasecmp here, since we want a locale-
            independent comparison. */
-        if (0 == evutil_ascii_strcasecmp(q->name, SIC_IPV4_ARPA)) {
+        if (0 == evutil_ascii_strcasecmp(q->name, STUPID_IPV4_ARPA)) {
             if (q->type == EVDNS_TYPE_PTR)
                 ok = evdns_server_request_add_ptr_reply(
                        request, NULL, q->name, "SHARING", TTL);
-	} else if (0 == evutil_ascii_strcasecmp(q->name,SIC_IPV6_ARPA)) {
+	} else if (0 == evutil_ascii_strcasecmp(q->name,STUPID_IPV6_ARPA)) {
             if (q->type == EVDNS_TYPE_PTR)
                 ok = evdns_server_request_add_ptr_reply(
                        request, NULL, q->name, "SHARING", TTL);
