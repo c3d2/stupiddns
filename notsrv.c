@@ -45,7 +45,7 @@ const ev_uint8_t SIC_IPV6[] = { 0xfe,0xc0,
 				0,0,0,0,
 				0,0,0,1 };
 
-#define TTL 4242
+#define TTL 10
 
 /* This toy DNS server callback answers requests for stuff
  * pointin to the sic site
