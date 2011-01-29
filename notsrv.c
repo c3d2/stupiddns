@@ -44,32 +44,41 @@ void server_callback(struct evdns_server_request *request, void *data)
        questions in one request yourself. */
 
     for (i=0; i < request->nquestions; ++i) {
-        const struct evdns_server_question *q = request->questions[i];
-        int ok=-1;
-        /* We don't use regular strcasecmp here, since we want a locale-
-           independent comparison. */
-        if (0 == evutil_ascii_strcasecmp(q->name, STUPID_IPV4_ARPA)) {
-            if (q->type == EVDNS_TYPE_PTR)
-                ok = evdns_server_request_add_ptr_reply(
-                       request, NULL, q->name, "SHARING", TTL);
-	} else if (0 == evutil_ascii_strcasecmp(q->name,STUPID_IPV6_ARPA)) {
-            if (q->type == EVDNS_TYPE_PTR)
-                ok = evdns_server_request_add_ptr_reply(
-                       request, NULL, q->name, "SHARING", TTL);
-	} else {
-		if (q->type == EVDNS_TYPE_A)
-			ok = evdns_server_request_add_a_reply(
-					request, q->name, 1,SIC_IPV4,TTL);
-		else if (q->type == EVDNS_TYPE_AAAA)
-                ok = evdns_server_request_add_aaaa_reply(
-                       request, q->name, 1, SIC_IPV6,TTL) ;
+	    const struct evdns_server_question *q = request->questions[i];
+	    int ok=-1;
 
-		else {
-			error = DNS_ERR_NOTEXIST;
-		}
-	}
-	if (ok<0 && error==DNS_ERR_NONE)
-		error = DNS_ERR_SERVERFAILED;
+	    switch ( q->type )
+	    {
+		case :	EVDNS_TYPE_PTR
+	    if ( (0 == evutil_ascii_strcasecmp(q->name, STUPID_IPV4_ARPA)) ||
+		 (0 == evutil_ascii_strcasecmp(q->name,STUPID_IPV6_ARPA) ) )
+	    	{
+			ok = evdns_server_request_add_ptr_reply(
+					request, NULL, q->name, "SHARING", TTL);
+	    	}
+			break;
+
+		case :	EVDNS_TYPE_A
+			ok = evdns_server_request_add_a_reply(request, q->name, 1,SIC_IPV4,TTL);
+			break;
+
+		case :	EVDNS_TYPE_AAAA
+ 			ok = evdns_server_request_add_aaaa_reply( request, q->name, 1, SIC_IPV6,TTL);
+			break;
+
+		case :	EVDNS_TYPE_NS
+			break;
+
+		case : EVDNS_TYPE_CNAME
+		case : EVDNS_TYPE_SOA 
+		case : EVDNS_TYPE_MX  
+		case : EVDNS_TYPE_TXT 
+		default:
+	    	
+	    }	/* -----  end switch  ----- */
+
+	    if (ok<0 && error==DNS_ERR_NONE)
+		    error = DNS_ERR_SERVERFAILED;
 
     }
 
