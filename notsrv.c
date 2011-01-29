@@ -49,31 +49,35 @@ void server_callback(struct evdns_server_request *request, void *data)
 
 	    switch ( q->type )
 	    {
-		case :	EVDNS_TYPE_PTR
-	    if ( (0 == evutil_ascii_strcasecmp(q->name, STUPID_IPV4_ARPA)) ||
-		 (0 == evutil_ascii_strcasecmp(q->name,STUPID_IPV6_ARPA) ) )
-	    	{
-			ok = evdns_server_request_add_ptr_reply(
-					request, NULL, q->name, "SHARING", TTL);
-	    	}
-			break;
+		    case 	EVDNS_TYPE_PTR :
+			    if ( (0 == evutil_ascii_strcasecmp(q->name, STUPID_IP4_ARPA)) ||
+					    (0 == evutil_ascii_strcasecmp(
+								q->name,STUPID_IP6_ARPA) ) )
+			    {
+				    ok = evdns_server_request_add_ptr_reply(
+						    request, NULL, q->name, "SHARING", TTL);
+			    }
+			    break;
 
-		case :	EVDNS_TYPE_A
-			ok = evdns_server_request_add_a_reply(request, q->name, 1,SIC_IPV4,TTL);
-			break;
+		    case EVDNS_TYPE_A :
+			    ok = evdns_server_request_add_a_reply(
+					    request, q->name, 1,SIC_IPV4,TTL);
+			    break;
 
-		case :	EVDNS_TYPE_AAAA
- 			ok = evdns_server_request_add_aaaa_reply( request, q->name, 1, SIC_IPV6,TTL);
-			break;
+		    case 	EVDNS_TYPE_AAAA:
+			    ok = evdns_server_request_add_aaaa_reply( 
+					    request, q->name, 1, SIC_IPV6,TTL);
+			    break;
 
-		case :	EVDNS_TYPE_NS
-			break;
+		    case 	EVDNS_TYPE_NS:
+			    break;
 
-		case : EVDNS_TYPE_CNAME
-		case : EVDNS_TYPE_SOA 
-		case : EVDNS_TYPE_MX  
-		case : EVDNS_TYPE_TXT 
-		default:
+		    case  EVDNS_TYPE_CNAME:
+		    case  EVDNS_TYPE_SOA :
+		    case  EVDNS_TYPE_MX  :
+		    case  EVDNS_TYPE_TXT :
+		    default:
+			    break;
 	    	
 	    }	/* -----  end switch  ----- */
 
@@ -106,7 +110,7 @@ int main(int argc, char **argv)
         return 1;
     memset(&listenaddr, 0, sizeof(listenaddr));
     listenaddr.sin_family = AF_INET;
-    listenaddr.sin_port = htons(LISTEN_PORT);
+    listenaddr.sin_port = htons(STUPID_LISTEN_PORT);
     listenaddr.sin_addr.s_addr = INADDR_ANY;
     if (bind(server_fd, (struct sockaddr*)&listenaddr, sizeof(listenaddr))<0)
         return 1;
