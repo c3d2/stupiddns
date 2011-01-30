@@ -37,57 +37,57 @@ const ev_uint8_t SIC_IPV6[] = STUPID_IP6 ;
  */
 void server_callback(struct evdns_server_request *request, void *data)
 {
-    int i;
-    int error=DNS_ERR_NONE;
-    /* We should try to answer all the questions.  Some DNS servers don't do
-       this reliably, though, so you should think hard before putting two
-       questions in one request yourself. */
+	int i;
+	int error=DNS_ERR_NONE;
+	/* We should try to answer all the questions.  Some DNS servers don't do
+	   this reliably, though, so you should think hard before putting two
+	   questions in one request yourself. */
 
-    for (i=0; i < request->nquestions; ++i) {
-	    const struct evdns_server_question *q = request->questions[i];
-	    int ok=-1;
+	for (i=0; i < request->nquestions; ++i) {
+		const struct evdns_server_question *q = request->questions[i];
+		int ok=-1;
 
-	    switch ( q->type )
-	    {
-		    case 	EVDNS_TYPE_PTR :
-			    if ( (0 == evutil_ascii_strcasecmp(q->name, STUPID_IP4_ARPA)) ||
-					    (0 == evutil_ascii_strcasecmp(
-								q->name,STUPID_IP6_ARPA) ) )
-			    {
-				    ok = evdns_server_request_add_ptr_reply(
-						    request, NULL, q->name, "SHARING", TTL);
-			    }
-			    break;
+		switch ( q->type )
+		{
+			case 	EVDNS_TYPE_PTR :
+				if ( (0 == evutil_ascii_strcasecmp(q->name, STUPID_IP4_ARPA)) ||
+						(0 == evutil_ascii_strcasecmp(
+										 q->name,STUPID_IP6_ARPA) ) )
+				{
+					ok = evdns_server_request_add_ptr_reply(
+							request, NULL, q->name, "SHARING", TTL);
+				}
+				break;
 
-		    case EVDNS_TYPE_A :
-			    ok = evdns_server_request_add_a_reply(
-					    request, q->name, 1,SIC_IPV4,TTL);
-			    break;
+			case EVDNS_TYPE_A :
+				ok = evdns_server_request_add_a_reply(
+						request, q->name, 1,SIC_IPV4,TTL);
+				break;
 
-		    case 	EVDNS_TYPE_AAAA:
-			    ok = evdns_server_request_add_aaaa_reply( 
-					    request, q->name, 1, SIC_IPV6,TTL);
-			    break;
+			case 	EVDNS_TYPE_AAAA:
+				ok = evdns_server_request_add_aaaa_reply( 
+						request, q->name, 1, SIC_IPV6,TTL);
+				break;
 
-		    case 	EVDNS_TYPE_NS:
-			    break;
+			case 	EVDNS_TYPE_NS:
+				break;
 
-		    case  EVDNS_TYPE_CNAME:
-		    case  EVDNS_TYPE_SOA :
-		    case  EVDNS_TYPE_MX  :
-		    case  EVDNS_TYPE_TXT :
-		    default:
-			    break;
-	    	
-	    }	/* -----  end switch  ----- */
+			case  EVDNS_TYPE_CNAME:
+			case  EVDNS_TYPE_SOA :
+			case  EVDNS_TYPE_MX  :
+			case  EVDNS_TYPE_TXT :
+			default:
+				break;
 
-	    if (ok<0 && error==DNS_ERR_NONE)
-		    error = DNS_ERR_SERVERFAILED;
+		}	/* -----  end switch  ----- */
 
-    }
+		if (ok<0 && error==DNS_ERR_NONE)
+			error = DNS_ERR_SERVERFAILED;
 
-    /* Now send the reply. */
-    evdns_server_request_respond(request, error);
+	}
+	evdns_server_request_set_flags(request,EVDNS_FLAGS_AA );
+	/* Now send the reply. */
+	evdns_server_request_respond(request, error);
 }
 
 
