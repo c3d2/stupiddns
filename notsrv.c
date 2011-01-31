@@ -51,7 +51,7 @@ void server_callback(struct evdns_server_request *request, void *data)
 		{
 			case 	EVDNS_TYPE_PTR :
 				if ( (0 == evutil_ascii_strcasecmp(q->name, STUPID_IP4_ARPA)) ||
-				     (0 == evutil_ascii_strcasecmp( q->name,STUPID_IP6_ARPA) )    )
+						(0 == evutil_ascii_strcasecmp( q->name,STUPID_IP6_ARPA) )    )
 				{
 					ok = evdns_server_request_add_ptr_reply(
 							request, NULL, q->name, STUPID_HOSTNAME, TTL);
@@ -72,7 +72,7 @@ void server_callback(struct evdns_server_request *request, void *data)
 
 			case 	EVDNS_TYPE_NS:
 				ok = evdns_server_request_add_ptr_reply(
-							request, NULL, q->name, STUPID_HOSTNAME, TTL);
+						request, NULL, q->name, STUPID_HOSTNAME, TTL);
 				break;
 
 			case  EVDNS_TYPE_CNAME:
@@ -104,34 +104,34 @@ void server_callback(struct evdns_server_request *request, void *data)
 
 int main(int argc, char **argv)
 {
-    struct event_base *base;
-    struct evdns_server_port *server;
-    evutil_socket_t server_fd;
-    struct sockaddr_in listenaddr;
+	struct event_base *base;
+	struct evdns_server_port *server;
+	evutil_socket_t server_fd;
+	struct sockaddr_in listenaddr;
 
-    base = event_base_new();
-    if (!base)
-        return 1;
+	base = event_base_new();
+	if (!base)
+		return 1;
 
-    server_fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (server_fd < 0)
-        return 1;
-    memset(&listenaddr, 0, sizeof(listenaddr));
-    listenaddr.sin_family = AF_INET;
-    listenaddr.sin_port = htons(STUPID_LISTEN_PORT);
-    listenaddr.sin_addr.s_addr = INADDR_ANY;
-    if (bind(server_fd, (struct sockaddr*)&listenaddr, sizeof(listenaddr))<0)
-        return 1;
+	server_fd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (server_fd < 0)
+		return 1;
+	memset(&listenaddr, 0, sizeof(listenaddr));
+	listenaddr.sin_family = AF_INET;
+	listenaddr.sin_port = htons(STUPID_LISTEN_PORT);
+	listenaddr.sin_addr.s_addr = INADDR_ANY;
+	if (bind(server_fd, (struct sockaddr*)&listenaddr, sizeof(listenaddr))<0)
+		return 1;
 
-    server = evdns_add_server_port_with_base(base, server_fd, 0,
-                                             server_callback, NULL);
+	server = evdns_add_server_port_with_base(base, server_fd, 0,
+			server_callback, NULL);
 
-    event_base_dispatch(base);
+	event_base_dispatch(base);
 
-    evdns_close_server_port(server);
-    event_base_free(base);
+	evdns_close_server_port(server);
+	event_base_free(base);
 
-    return 0;
+	return 0;
 }
 
 
