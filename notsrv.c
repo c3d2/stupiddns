@@ -42,9 +42,7 @@ void server_callback(struct evdns_server_request *request, void *data)
 	/* We should try to answer all the questions.  Some DNS servers don't do
 	   this reliably, though, so you should think hard before putting two
 	   questions in one request yourself. */
-	char * anam = NULL;
-	char buf[128] ;
-
+	int anam =0;
 	for (i=0; i < request->nquestions; ++i) {
 		const struct evdns_server_question *q = request->questions[i];
 		int ok=-1;
@@ -53,8 +51,7 @@ void server_callback(struct evdns_server_request *request, void *data)
 		{
 			case 	EVDNS_TYPE_PTR :
 				if ( (0 == evutil_ascii_strcasecmp(q->name, STUPID_IP4_ARPA)) ||
-						(0 == evutil_ascii_strcasecmp(
-										 q->name,STUPID_IP6_ARPA) ) )
+				     (0 == evutil_ascii_strcasecmp( q->name,STUPID_IP6_ARPA) )    )
 				{
 					ok = evdns_server_request_add_ptr_reply(
 							request, NULL, q->name, STUPID_HOSTNAME, TTL);
@@ -64,16 +61,18 @@ void server_callback(struct evdns_server_request *request, void *data)
 			case EVDNS_TYPE_A :
 				ok = evdns_server_request_add_a_reply(
 						request, q->name, 1,SIC_IPV4,TTL);
-				anam=(char*)q->name;
+				anam=1;
 				break;
 
 			case 	EVDNS_TYPE_AAAA:
 				ok = evdns_server_request_add_aaaa_reply( 
 						request, q->name, 1, SIC_IPV6,TTL);
-				anam=(char*)q->name;
+				anam=1;
 				break;
 
 			case 	EVDNS_TYPE_NS:
+				ok = evdns_server_request_add_ptr_reply(
+							request, NULL, q->name, STUPID_HOSTNAME, TTL);
 				break;
 
 			case  EVDNS_TYPE_CNAME:
@@ -91,8 +90,6 @@ void server_callback(struct evdns_server_request *request, void *data)
 	}
 	evdns_server_request_set_flags(request,EVDNS_FLAGS_AA );
 	if (anam){
-		snprintf(buf,127,"NS.%s.",anam);
-		buf[128] =0;
 		evdns_server_request_add_reply(request,EVDNS_AUTHORITY_SECTION ,STUPID_HOSTNAME,
 				EVDNS_TYPE_NS, EVDNS_CLASS_INET, TTL, sizeof(STUPID_HOSTNAME) , 1,STUPID_HOSTNAME
 				);
